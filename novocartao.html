@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartão de Visita Digital</title>
+    <!-- Adiciona a biblioteca de ícones Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Adiciona a biblioteca Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Adiciona a biblioteca para gerar o QR Code -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a; /* Fundo mais escuro */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #d1d5db;
+        }
+        .vcard-button:hover .vcard-icon {
+            animation: pulse-grow 1s infinite;
+        }
+        @keyframes pulse-grow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="p-4">
+
+    <!-- Container principal do cartão -->
+    <div id="digital-card" class="w-full max-w-sm bg-[#1a1a1a] rounded-2xl shadow-2xl p-6 md:p-8 transform transition-transform duration-300 hover:scale-105">
+        
+        <!-- Seção do perfil -->
+        <div class="flex flex-col items-center text-center">
+            <!-- Nome e cargo -->
+            <h1 class="text-2xl font-bold text-gray-50 mb-1" id="card-name">Gustavo Guarany Godoy</h1>
+            <p class="text-lg font-medium text-gray-300" id="card-title">Advogado Sênior</p>
+            <p class="text-sm text-gray-400" id="card-company">GOES CABETE E MELO SOCIEDADE DE ADVOGADOS</p>
+        </div>
+
+        <!-- Linha divisória -->
+        <hr class="my-6 border-t border-gray-700">
+
+        <!-- Informações de contato -->
+        <div class="space-y-4">
+            <!-- Telefone -->
+            <div class="flex items-center space-x-4">
+                <i class="fas fa-phone-alt text-lg text-[#b7995e]"></i>
+                <a href="tel:+5511917457049" class="text-gray-300 hover:text-white transition-colors duration-200" id="card-phone-link">+55 (11) 91745-7049</a>
+            </div>
+            <!-- E-mail -->
+            <div class="flex items-center space-x-4">
+                <i class="fas fa-envelope text-lg text-[#b7995e]"></i>
+                <a href="mailto:gustavo@hmgcadvogados.com.br" class="text-gray-300 hover:text-white transition-colors duration-200" id="card-email-link">gustavo@hmgcadvogados.com.br</a>
+            </div>
+            <!-- Website -->
+            <div class="flex items-center space-x-4">
+                <i class="fas fa-globe text-lg text-[#b7995e]"></i>
+                <a href="https://www.hmgcadvogados.com.br/" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200" id="card-website-link">www.hmgcadvogados.com.br</a>
+            </div>
+            <!-- Endereço -->
+            <div class="flex items-center space-x-4">
+                <i class="fas fa-map-marker-alt text-lg text-[#b7995e]"></i>
+                <span class="text-gray-300" id="card-location">Av. Ibirapuera, 2120, 20º Andar - Moema, São Paulo-SP, CEP 04028-001</span>
+            </div>
+        </div>
+
+        <!-- Linha divisória -->
+        <hr class="my-6 border-t border-gray-700">
+
+        <!-- Links de mídia social -->
+        <div class="flex justify-center">
+            <a href="https://www.linkedin.com/in/gustavoguaranygodoy/" target="_blank" class="text-[#b7995e] hover:text-white transform hover:scale-125 transition-transform duration-200"><i class="fab fa-linkedin-in fa-xl"></i></a>
+        </div>
+
+        <!-- Seção do QR Code -->
+        <div class="mt-6 flex flex-col items-center">
+            <div id="qrcode" class="p-4 bg-white rounded-lg shadow-inner"></div>
+        </div>
+        
+        <!-- Linha divisória -->
+        <hr class="my-6 border-t border-gray-700">
+
+        <!-- Botões de ação -->
+        <div class="flex flex-col space-y-4">
+            <!-- Botão para adicionar à agenda -->
+            <button id="add-contact-button" class="bg-[#b7995e] text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:bg-[#a1884e] transition-colors duration-200 vcard-button">
+                <i class="fas fa-address-card mr-2 vcard-icon"></i> Adicionar aos Contatos
+            </button>
+            <!-- Botão para copiar informações -->
+            <button id="copy-button" class="bg-gray-700 text-gray-300 font-semibold py-3 px-6 rounded-xl shadow-lg hover:bg-gray-600 transition-colors duration-200">
+                <i class="fas fa-copy mr-2"></i> Copiar Informações
+            </button>
+            <!-- Mensagem de feedback -->
+            <div id="message-box" class="hidden bg-green-500 text-white text-center py-2 px-4 rounded-xl mt-4">
+                Copiado para a área de transferência!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Use uma estrutura de dados simples para as informações do cartão
+        const cardData = {
+            name: "Gustavo Guarany Godoy",
+            title: "Advogado Sênior",
+            company: "GOES CABETE E MELO SOCIEDADE DE ADVOGADOS",
+            phone: "5511917457049",
+            email: "gustavo@hmgcadvogados.com.br",
+            website: "https://www.hmgcadvogados.com.br/",
+            linkedin: "https://www.linkedin.com/in/gustavoguaranygodoy/",
+            address: "Av. Ibirapuera, 2120, 20º Andar - Moema, São Paulo-SP, CEP 04028-001"
+        };
+
+        // Função para gerar o conteúdo vCard
+        function generateVCard() {
+            return `BEGIN:VCARD
+VERSION:3.0
+FN:${cardData.name}
+ORG:${cardData.company}
+TITLE:${cardData.title}
+ADR;TYPE=WORK:;;${cardData.address}
+TEL;TYPE=WORK,VOICE:${cardData.phone}
+EMAIL;TYPE=PREF,INTERNET:${cardData.email}
+URL:${cardData.website}
+X-SOCIAL-PROFILE;TYPE=linkedin;x-user=${cardData.linkedin.split('/').pop()}:${cardData.linkedin}
+END:VCARD`;
+        }
+        
+        // Adiciona um listener para o botão de adicionar contato
+        document.getElementById('add-contact-button').addEventListener('click', () => {
+            const vcard = generateVCard();
+            const blob = new Blob([vcard], { type: 'text/vcard' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'contato.vcf');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        });
+
+        // Adiciona um listener para o botão de copiar
+        document.getElementById('copy-button').addEventListener('click', () => {
+            const textToCopy = `Nome: ${cardData.name}\nCargo: ${cardData.title}\nEmpresa: ${cardData.company}\nEndereço: ${cardData.address}\nTelefone: ${cardData.phone}\nEmail: ${cardData.email}\nWebsite: ${cardData.website}`;
+            
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                // Usa document.execCommand para compatibilidade em iframes
+                const successful = document.execCommand('copy');
+                const msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Copying text command was ' + msg);
+                showMessageBox("Copiado com sucesso!");
+            } catch (err) {
+                console.error('Oops, unable to copy', err);
+                showMessageBox("Erro ao copiar.", true);
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        });
+
+        // Função para exibir a mensagem de feedback
+        function showMessageBox(message, isError = false) {
+            const messageBox = document.getElementById('message-box');
+            messageBox.textContent = message;
+            messageBox.classList.remove('hidden', 'bg-green-500', 'bg-red-500');
+            messageBox.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Gera o QR Code com a URL atual
+        new QRCode(document.getElementById("qrcode"), {
+            text: window.location.href,
+            width: 96,
+            height: 96,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    </script>
+
+</body>
+</html>
